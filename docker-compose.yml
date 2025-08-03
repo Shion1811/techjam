@@ -1,0 +1,7 @@
+services:
+  app:
+    build: ./
+    volumes:
+      - .:/workdir
+    ports:
+      - 3001:3000
