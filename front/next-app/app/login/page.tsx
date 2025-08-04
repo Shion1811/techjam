@@ -29,7 +29,7 @@ export default async function Home() {
               await signIn("google");
             }}
           >
-            <button type="submit" className="bg-amber-200 border border-2">Signin with Google</button>
+            <button type="submit" className="bg-amber-200 border border-2">Googleでログイン</button>
           </form>
         </>
       )}
