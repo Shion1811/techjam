@@ -1,0 +1,4 @@
+mysqlclient>=2.2.0
+django>=5.0.0
+mysqlclient
+

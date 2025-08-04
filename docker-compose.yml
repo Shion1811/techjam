@@ -1,7 +1,27 @@
 services:
-  app:
-    build: ./
+  frontend:
+    build: ./front
     volumes:
-      - .:/workdir
+      - ./front/:/workdir
     ports:
       - 3001:3000
+  db:
+    image: mysql:8.3
+    volumes:
+      - ./back/django/mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: dev
+    ports:
+      - "3306:3306"
+  backend:
+    build: ./back
+    volumes:
+      - ./back/django/techjam_project:/django/techjam_project
+    ports:
+      - "8086:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - HOST_IP=host.docker.internal
+    depends_on:
+      - db
