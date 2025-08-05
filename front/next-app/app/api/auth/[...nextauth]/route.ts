@@ -7,6 +7,11 @@ const handler = NextAuth({
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID!,
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+      authorization: {
+        params: {
+          prompt: "select_account consent", // ここで毎回アカウント選択画面を表示
+        },
+      },
     }),
   ],
   callbacks: {
