@@ -1,14 +1,19 @@
 import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
+import GoogleProvider from "next-auth/providers/google";
 
-export const { auth, signIn, signOut } = NextAuth({
+export const authOptions = {
   providers: [
-    Google({
+    GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID!,
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
     }),
   ],
-  pages: {
-    signIn: '/login',
+  callbacks: {
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      // ログイン後はtopページにリダイレクト
+      return `${baseUrl}/top`;
+    },
   },
-}); 
+};
+
+export const { auth, signIn, signOut } = NextAuth(authOptions); 

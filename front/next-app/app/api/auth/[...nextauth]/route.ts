@@ -9,6 +9,12 @@ const handler = NextAuth({
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
     }),
   ],
+  callbacks: {
+    async redirect({ url, baseUrl }) {
+      // ログイン後はtopページにリダイレクト
+      return `${baseUrl}/top`;
+    },
+  },
 })
 
 export { handler as GET, handler as POST }
