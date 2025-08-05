@@ -15,6 +15,15 @@ const handler = NextAuth({
       return `${baseUrl}/top`;
     },
   },
+  pages: {
+    signIn: '/login',
+  },
+  session: {
+    strategy: "jwt",
+  },
+  jwt: {
+    secret: process.env.NEXTAUTH_SECRET,
+  },
 })
 
 export { handler as GET, handler as POST }

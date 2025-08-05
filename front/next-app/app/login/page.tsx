@@ -8,11 +8,12 @@ export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    if (session) {
-      router.push("/top");
-    }
-  }, [session, router]);
+  // 自動リダイレクトを無効化
+  // useEffect(() => {
+  //   if (session) {
+  //     router.push("/top");
+  //   }
+  // }, [session, router]);
 
   if (status === "loading") {
     return (
@@ -24,9 +25,13 @@ export default function Home() {
     );
   }
 
-  if (session) {
-    return null; // リダイレクト中
-  }
+  const handleGoogleLogin = () => {
+    signIn("google", { 
+      callbackUrl: "/top",
+      prompt: "select_account", // Googleアカウント選択画面を強制表示
+      redirect: true // 明示的にリダイレクトを有効化
+    });
+  };
 
   return (
     <>
@@ -36,7 +41,7 @@ export default function Home() {
           <div className="text-center">
             <p className="mb-4">Googleでログインしてください</p>
             <button 
-              onClick={() => signIn("google", { callbackUrl: "/top" })}
+              onClick={handleGoogleLogin}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             >
               Googleでログイン
