@@ -4,5 +4,5 @@ WORKDIR /workdir
 COPY . .
 WORKDIR /workdir/next-app
 RUN npm install
-CMD ["npm", "run", "dev"]
+CMD ["npx", "next", "dev", "--turbopack"]
 EXPOSE 3000
