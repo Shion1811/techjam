@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% block content %}
+    <h1>店舗情報の削除</h1>
+    <p>登録した店舗の情報を削除します。</p>
+    {% if store %}
+        <h2>店舗名: {{ store.StoreName }}</h2>
+    {% else %}
+        <p>店舗情報が見つかりません。</p>
+    {% endif %}
+    {% if store.images.all %}
+        <h2>店舗写真</h2>
+        {% for image in store.images.all %}
+            <img src="{{ image.image.url }}" alt="店舗画像" width="200">
+        {% empty %}
+            <p>画像なし</p>
+        {% endfor %}
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">削除</button>
+    </form>
+    <a href="{% url 'store_detail' store.id %}">キャンセル</a>
+    {% endblock %}
+    <a href="{% url 'stores' %}">店舗一覧に戻る</a>
+</body>
+</html>

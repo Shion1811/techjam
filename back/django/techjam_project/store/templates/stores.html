@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>店舗一覧</title>
+</head>
+<body>
+    <h1>店舗一覧</h1>
+    <ul>
+        {% for store in stores %}
+        <li>
+            <a href="{% url 'store_detail' store.id %}">{{ store.store_name }}</a>
+            
+            <p>{{ store.address }}</p>
+            {% for image in store.images.all %}
+                <img src="{{ image.image.url }}" alt="店舗画像" width="200">
+            {% empty %}
+                <p>画像なし</p>
+            {% endfor %}
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'stores_create' %}">新規店舗登録</a>
+</body>
+</html>
