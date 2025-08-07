@@ -1,9 +1,5 @@
-import { RunningStamp } from "@/components/runningStamp";
+import StampBook from "@/components/StampBook";
 
-export default function Stamp() {
-    return (
-        <div>
-            <RunningStamp />
-        </div>
-    )
+export default function Home() {
+    return <StampBook />;
 }
