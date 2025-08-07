@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>店舗詳細</title>
+</head>
+<body>
+    {% block content %}
+    <h1>店舗詳細</h1>
+    <h2>{{ store.store_name }}</h2>
+    <p>住所: {{ store.address }}</p>
+    <p>営業時間: {{ store.open_time }}〜{{ store.close_time }}</p>
+    <p>定休日: {{ store.holiday }}</p>
+    {% for genre in store.genres.all %}
+        <ul style="display: flex;">
+            <li>{{ genre }}</li>
+        </ul>
+    {% empty %}
+        <p>ジャンル情報なし</p>
+    {% endfor %}
+    <h3>店舗写真</h3>
+    {% for image in store.images.all %}
+        <img src="{{ image.image.url }}" alt="店舗画像" width="200">
+    {% empty %}
+        <p>画像なし</p>
+    {% endfor %}
+    {% endblock %}
+    <a href="{% url 'stores' %}">店舗一覧に戻る</a>
+    <a href="{% url 'store_edit' store.id %}">店舗編集</a>
+</body>
+</html>
