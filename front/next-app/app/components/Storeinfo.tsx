@@ -1,12 +1,14 @@
     'use client';
 
+    import { useRouter } from 'next/navigation';
     import { useState } from 'react';
 
-    export default function StoreRegister() {
+    export default function StoreInfo() {
+        const router = useRouter();
     return (
         <div className="min-h-screen bg-white p-4 text-black">
         {/* 戻るボタン */}
-        <button className="text-2xl mb-4">{'‹'}</button>
+        <button className="text-2xl mb-4" onClick={() => router.back()}>{'‹'}</button>
 
         {/* ロゴ画像エリア */}
         <div className="w-48 h-16 bg-gray-300 mx-auto mb-6" />
@@ -141,11 +143,13 @@
             <div className="flex justify-between mt-6">
             <button
                 type="button"
+                onClick={() => router.back()}
                 className="bg-white-0 text-rose-400 font-bold border-4 border-rose-400 rounded-full px-12 py-2 text-sm">
                 戻る
             </button>
             <button
                 type="submit"
+                onClick={() => router.push('/StoreCfm')}
                 className="bg-rose-400 text-white font-bold rounded-full px-12 py-2 text-sm">
                 確認
             </button>
