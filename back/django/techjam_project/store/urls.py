@@ -21,4 +21,9 @@ urlpatterns = [
     
     # API用のURLパターン
     path('api/', include(router.urls)),
+    
+    # Google Maps API用のURLパターン
+    path('api/search-nearby/', views.search_nearby_shops, name='search_nearby_shops'),
+    path('api/shop-details/<str:place_id>/', views.get_shop_details, name='get_shop_details'),
+    path('api/save-google-shop/', views.save_google_shop, name='save_google_shop'),
 ]

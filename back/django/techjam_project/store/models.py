@@ -52,3 +52,5 @@ class StoreImage(models.Model):
 class Shop(models.Model):
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=255, blank=True)
+    business_hours = models.CharField(max_length=100, blank=True, verbose_name="営業時間")
+    phone = models.CharField(max_length=20, blank=True, verbose_name="電話番号")
