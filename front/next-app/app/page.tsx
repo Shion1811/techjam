@@ -125,12 +125,20 @@ export default function TopPage() {
     // ===== 店舗カードをクリックした時の処理 =====
     const handleShopClick = (shop: Shop | GoogleMapsShop) => {
         console.log('店舗をクリック:', shop);
+        
+        // Google Maps APIの店舗の場合は詳細ページに遷移
+        if ('place_id' in shop) {
+            window.location.href = `/storeIntroduction?place_id=${shop.place_id}`;
+        } else {
+            // 通常の店舗の場合は詳細ページに遷移（IDを使用）
+            window.location.href = `/storeIntroduction?shop_id=${shop.id}`;
+        }
     };
 
     // ===== ローディング中の表示 =====
     if (loading) {
-        return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
                 <div className="text-lg">読み込み中...</div>
             </div>
         );
@@ -140,7 +148,7 @@ export default function TopPage() {
         <div className="min-h-screen bg-gray-50">
             <div className="mx-4 py-6 space-y-6">
                 {/* ===== ページタイトル ===== */}
-                <div className="text-center">
+        <div className="text-center">
                     <h1 className="text-3xl font-bold text-gray-800 mb-2">大須商店街</h1>
                     <p className="text-gray-600">お気に入りのお店を見つけよう</p>
                 </div>
@@ -182,10 +190,7 @@ export default function TopPage() {
                         </div>
                         {/* 検索ボタン */}
                         <button
-                            onClick={(e) => {
-                                e.stopPropagation(); // 親要素のクリックイベントを防ぐ
-                                handleSearch();
-                            }}
+                            onClick={handleSearch}
                             disabled={searchLoading || !searchQuery.trim()}
                             className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:text-gray-500 font-medium"
                         >
@@ -194,10 +199,7 @@ export default function TopPage() {
                         {/* リセットボタン（検索モード時のみ表示） */}
                         {isSearchMode && (
                             <button
-                                onClick={(e) => {
-                                    e.stopPropagation(); // 親要素のクリックイベントを防ぐ
-                                    handleResetSearch();
-                                }}
+                                onClick={handleResetSearch}
                                 className="px-3 py-2 bg-gray-500 text-white text-sm rounded-lg hover:bg-gray-600 transition-colors"
                             >
                                 リセット
@@ -291,7 +293,7 @@ export default function TopPage() {
                         </div>
                     </div>
                 )}
-            </div>
-        </div>
-    );
+      </div>
+    </div>
+  );
 }
