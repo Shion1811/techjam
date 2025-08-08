@@ -2,6 +2,7 @@
 
     import { useRouter } from 'next/navigation';
     import { useState } from 'react';
+    import Link from 'next/link';
 
     export default function StoreInfo() {
         const router = useRouter();
@@ -11,7 +12,11 @@
         <button className="text-2xl mb-4" onClick={() => router.back()}>{'‹'}</button>
 
         {/* ロゴ画像エリア */}
-        <div className="w-48 h-16 bg-gray-300 mx-auto mb-6" />
+        <div className="flex justify-center mb-4">
+            <Link href="/top/pages">
+                <img src="/images/techjam-logo.png" alt="LOGO" className="w-12 h-12"/>
+            </Link>
+        </div>
 
         {/* タイトル */}
         <h1 className="text-center text-2xl font-bold mb-4">店舗登録</h1>
@@ -149,7 +154,10 @@
             </button>
             <button
                 type="submit"
-                onClick={() => router.push('/StoreCfm')}
+                onClick ={(e) => {
+                e.preventDefault();
+                router.push('/StoreCfm');
+            }}
                 className="bg-rose-400 text-white font-bold rounded-full px-12 py-2 text-sm">
                 確認
             </button>

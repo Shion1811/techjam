@@ -2,17 +2,23 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function StoreRegister() {
     const [status, setStatus] = useState<'open' | 'closed'>('open');
-
+    const router = useRouter();
     return (
     <div className="min-h-screen bg-white p-4 text-black">
       {/* 戻るボタン */}
         <button className="text-2xl mb-4">{'‹'}</button>
 
       {/* 店舗画像の枠 */}
-        <div className="w-48 h-16 bg-gray-300 mx-auto mb-6" />
+        <div className="flex justify-center mb-4">
+            <Link href="/top/pages">
+                <img src="/images/techjam-logo.png" alt="LOGO" className="w-12 h-12"/>
+            </Link>
+        </div>
 
       {/* タイトル */}
         <h1 className="text-xl font-bold text-center mb-8">店舗登録</h1>
@@ -55,9 +61,12 @@ export default function StoreRegister() {
 
       {/* 次へボタン */}
         <div className="text-center">
-        <button className="bg-rose-400 text-white rounded-full px-12 py-2 text-sm">
-            次へ
-        </button>
+        <button
+                type="submit"
+                onClick={() => router.push('/CustomerInfo')}
+                className="bg-rose-400 text-white font-bold rounded-full px-12 py-2 text-sm">
+                送信
+            </button>
         </div>
     </div>
     );
