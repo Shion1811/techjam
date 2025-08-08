@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>スタンプ・クーポン テスト</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: auto; background-color: #f4f4f9; color: #333; }
+        h1, h2 { color: #007bff; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 30px; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; margin: 5px 0; }
+        button:hover { background-color: #0056b3; }
+        #message, .status-message { margin-top: 15px; padding: 10px; border-radius: 5px; }
+        #message { background-color: #e2e3e5; color: #333; }
+        .coupon-list-item { background-color: #ffffff; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .coupon-details { flex-grow: 1; }
+        .coupon-details strong { font-size: 1.1em; color: #333; }
+        .coupon-details span { display: block; font-size: 0.9em; color: #666; }
+        .coupon-actions button { margin-left: 10px; }
+        #couponMessage { background-color: #d4edda; color: #155724; font-weight: bold; }
+        .stamp-info, .coupon-section { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; background-color: #fff; }
+        .error-message { background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>スタンプ・クーポン機能 テスト</h1>
+
+    <h2>スタンプ追加</h2>
+    <div class="stamp-info">
+        <strong>店舗ID: </strong><span id="storeIdDisplay">{{ store.id|default:"ストアIDなし" }}</span>
+        <button id="addStampBtn">スタンプ追加</button>
+        <div id="message"></div>
+        <div style="margin-top: 15px;">
+            <strong>現在のスタンプ数: </strong><span id="stampCount">0</span>
+        </div>
+        <div id="couponMessage"></div>
+    </div>
+
+    <h2>クーポン一覧</h2>
+    <div class="coupon-section">
+        <div id="couponList">
+            <p>クーポンを読み込み中...</p>
+        </div>
+    </div>
+    
+    <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
+
+    <script>
+        const storeId = {{ store.id|default:"0" }};
+        const csrfToken = document.getElementById("csrfToken").value;
+        
+        // ページ読み込み時にクーポン一覧を取得・表示
+        document.addEventListener("DOMContentLoaded", function() {
+            fetchCoupons();
+            fetchStampCount();
+        });
+
+        // スタンプ数を取得する関数
+        function fetchStampCount() {
+            // ここではスタンプ数を取得する専用のAPIがないため、
+            // 簡略化してスタンプ数を直接表示するロジックは省略します。
+            // 実際には、スタンプ数取得用のAPIが必要です。
+        }
+
+        // クーポン一覧を取得・表示する関数
+        function fetchCoupons() {
+            fetch(`/stamps/coupons/`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`サーバーエラー: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(coupons => {
+                const couponListDiv = document.getElementById("couponList");
+                couponListDiv.innerHTML = ""; // 既存のリストをクリア
+
+                if (coupons.length === 0) {
+                    couponListDiv.innerHTML = "<p>有効期限内のクーポンはありません。</p>";
+                    return;
+                }
+
+                coupons.forEach(coupon => {
+                    const couponItem = document.createElement("div");
+                    couponItem.className = "coupon-list-item";
+                    couponItem.dataset.couponId = coupon.id;
+
+                    const expiresAt = new Date(coupon.expires_at).toLocaleDateString('ja-JP');
+                    
+                    couponItem.innerHTML = `
+                        <div class="coupon-details">
+                            <strong>${coupon.description}</strong>
+                            <span>有効期限: ${expiresAt}</span>
+                        </div>
+                        <div class="coupon-actions">
+                            <button class="use-coupon-btn">使用する</button>
+                        </div>
+                    `;
+                    couponListDiv.appendChild(couponItem);
+                });
+
+                // 各「使用する」ボタンにイベントリスナーを設定
+                document.querySelectorAll(".use-coupon-btn").forEach(button => {
+                    button.addEventListener("click", function(event) {
+                        const couponId = event.target.closest(".coupon-list-item").dataset.couponId;
+                        useCoupon(couponId);
+                    });
+                });
+            })
+            .catch(error => {
+                const couponListDiv = document.getElementById("couponList");
+                couponListDiv.innerHTML = `<p class="error-message">クーポン取得エラー: ${error.message}</p>`;
+            });
+        }
+
+        // クーポンを使用済みにする関数
+        function useCoupon(couponId) {
+            fetch(`/stamps/use-coupon/${couponId}/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                credentials: "same-origin"
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.error || `サーバーエラー: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                fetchCoupons(); // クーポン一覧を再取得して画面を更新
+            })
+            .catch(error => {
+                alert("クーポン使用エラー: " + error.message);
+            });
+        }
+
+        // スタンプ追加ボタンのクリックイベント
+        document.getElementById("addStampBtn").addEventListener("click", function() {
+            if (!storeId) {
+                document.getElementById("message").innerText = "ストアIDが見つかりません。";
+                return;
+            }
+
+            fetch(`/stamps/add-stamp/${storeId}/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                credentials: "same-origin"
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(`サーバーエラー: ${response.status} - ${JSON.stringify(errorData)}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById("message").innerText = "スタンプ追加成功！";
+                document.getElementById("stampCount").innerText = data.total_stamps;
+
+                if (data.coupon) {
+                    document.getElementById("couponMessage").innerHTML = 
+                        `<div id="couponMessage"><p>🎉 クーポン発行！説明: ${data.coupon.description}</p></div>`;
+                    fetchCoupons(); // 新しいクーポンが発行されたら、一覧を再取得
+                } else {
+                    document.getElementById("couponMessage").innerHTML = "";
+                }
+            })
+            .catch(error => {
+                document.getElementById("message").innerText = "通信エラー: " + error.message;
+            });
+        });
+    </script>
+</body>
+</html>

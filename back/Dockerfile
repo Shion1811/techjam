@@ -12,8 +12,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY requirements.txt .kl
-RUN pip install --no-cache-dir -r requirements.txt pymysql
+# ファイル名を正しく修正
+COPY requirements.txt .
+
+# pip installコマンドを修正
+# requirements.txtのみからインストール
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project files
 COPY . .

@@ -1,39 +1,35 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-class Store(models.Model):
-    name = models.CharField(max_length=100)
-    address = models.CharField(max_length=255, blank=True)
+# Storeモデルとの一対一の関係はstore/models.pyで定義するため、
+# こちらではStoreモデルのインポートと関連フィールドを削除します。
 
-    def __str__(self):
-        return self.name
 
 class Stamp(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    store = models.ForeignKey(Store, on_delete=models.CASCADE)
-    count = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        unique_together = ('user', 'store')
+    # 店舗との関連はstore/models.pyで定義
+    description = models.CharField(max_length=255)
 
     def __str__(self):
-        return f"{self.user.username} - {self.store.name}: {self.count}個"
+        return f"Stamp - {self.description}"
+
 
 class StampHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    store = models.ForeignKey(Store, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    stamp = models.ForeignKey(Stamp, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} got a stamp at {self.store.name} on {self.timestamp}"
+        return f"{self.user.username} - {self.stamp.description} - {self.created_at}"
+
 
 class Coupon(models.Model):
-    code = models.CharField(max_length=50, unique=True)
-    description = models.TextField(blank=True)
-    valid_until = models.DateTimeField()
-    usage_condition = models.TextField(blank=True)
-    is_active = models.BooleanField(default=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # 循環インポートを防ぐため、'store.Store'と文字列で参照
+    store = models.ForeignKey('store.Store', on_delete=models.SET_NULL, null=True, blank=True)
+    description = models.CharField(max_length=255)
+    is_used = models.BooleanField(default=False)
+    issued_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)  # 有効期限
 
     def __str__(self):
-        return self.code
-
+        return f"Coupon for {self.user.username} at {self.store} - Used: {self.is_used}"

@@ -1,14 +1,11 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import StoreViewSet, StampViewSet, StampHistoryViewSet, CouponViewSet, hello_api
-
-router = DefaultRouter()
-router.register(r'stores', StoreViewSet)
-router.register(r'stamps', StampViewSet)
-router.register(r'stamp-histories', StampHistoryViewSet)
-router.register(r'coupons', CouponViewSet)
+# stamps/urls.py
+from django.urls import path
+from .views import AddStampView, StampBookView, CouponListView, stamp_test_page, UseCouponView
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('hello/', hello_api),
+    path('add-stamp/<int:store_id>/', AddStampView.as_view(), name='add_stamp'),
+    path('stamp-book/', StampBookView.as_view(), name='stamp_book'),
+    path('coupons/', CouponListView.as_view(), name='coupon_list'),
+    path('test/<int:store_id>/', stamp_test_page, name='stamp_test_page'),
+    path('use-coupon/<int:coupon_id>/', UseCouponView.as_view(), name='use_coupon'),
 ]

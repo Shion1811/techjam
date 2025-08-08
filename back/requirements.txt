@@ -1,6 +1,4 @@
-mysqlclient>=2.2.0
-django>=5.0.0
-mysqlclient
-Pillow
+Django>=5.0.0
 djangorestframework
-
+Pillow
+mysqlclient>=2.2.0

@@ -1,29 +1,19 @@
 from django.contrib import admin
-from .models import Store, Stamp, StampHistory
+from .models import Stamp, StampHistory, Coupon  # Couponをインポート
 
-@admin.register(Store)
-class StoreAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
-    search_fields = ('name',)
-    list_filter = ('name',)
-
+# Stampモデルを管理サイトに登録
 @admin.register(Stamp)
 class StampAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'store', 'created_at', 'get_store_name')
-    search_fields = ('user__username', 'store__name')
-    list_filter = ('store', 'created_at')
-    raw_id_fields = ('user', 'store')
+    list_display = ('id', 'description')
 
-    def get_store_name(self, obj):
-        return obj.store.name
-    get_store_name.short_description = 'Store Name'
-
+# StampHistoryモデルを管理サイトに登録
 @admin.register(StampHistory)
 class StampHistoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'stamp', 'action', 'timestamp', 'get_user')
-    search_fields = ('stamp__user__username',)
-    list_filter = ('action', 'timestamp')
-    raw_id_fields = ('stamp',)
+    list_display = ('user', 'stamp', 'created_at')
 
-    def get_user(self, obj):
-        return obj.stamp.user.username if obj.stamp and obj.stamp.user else '-'
+# Couponモデルを管理サイトに登録
+@admin.register(Coupon)
+class CouponAdmin(admin.ModelAdmin):
+    list_display = ('user', 'store', 'description', 'is_used', 'expires_at')
+    list_filter = ('is_used', 'expires_at', 'store')
+    search_fields = ('user__username', 'description')
