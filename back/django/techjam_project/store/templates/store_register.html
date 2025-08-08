@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>店舗登録</title>
+</head>
+<body>
+    <h1>店舗登録</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <h2>店舗写真</h2>
+        {{ image_formset.management_form }}
+        {% for image_form in image_formset %}
+            {{ image_form.as_p }}
+        {% endfor %}
+
+        <button type="submit">登録</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>インタビューのお題一覧</title>
+</head>
+<body>
+    <h1>インタビューのお題一覧</h1>
+
+    {% for topic in topics %}
+        <div>
+            <h2>{{ topic.title }}</h2>
+            <p>{{ topic.description }}</p>
+            <small>作成日時: {{ topic.created_at|date:"Y年n月j日 H:i" }}</small>
+        </div>
+        <hr>
+
+        <h3>回答</h3>
+        {% for reply in topic.reply.all %}  <div>
+                <p>{{ reply.reply }}</p>
+                {% if reply.image %}
+                    {% for image in reply.image.all %}
+                        <img src="{{ image.image.url }}" alt="Reply Image" style="max-width: 300px;">
+                    {% endfor %}
+                {% endif %}
+                <small>投稿日時: {{ reply.created_at|date:"Y年n月j日 H:i" }}</small>
+            </div>
+            <hr>
+        {% empty %}
+            <p>まだ回答はありません。</p>
+        {% endfor %}
+        <form action="{% url 'topic_reply' topic_id=topic.id %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <textarea name="content" id="id_content"></textarea>
+        <label for="id_picture">画像を選択:</label>
+        <input type="file" name="picture" id="picture">
+        <br>
+        <button type="submit">投稿</button>
+    </form>
+    {% empty %}
+        <p>現在、表示するお題はありません。</p>
+    {% endfor %}
+</body>
+</html>
