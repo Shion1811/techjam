@@ -7,6 +7,13 @@
   --green-style: #90993C;
   --brown-style: #8D6E63;
   --white-style: #F1F1F1;
+
+  --font-size-h1: 36px;
+  --font-size-h2: 30px;
+  --font-size-h3: 24px;
+  --font-size-h4: 20px;
+  --font-size-p: 16px;
+  --font-size-small: 12px;
 }
 
 @theme inline {
@@ -20,13 +27,28 @@
   --color-green: var(--green-style);
   --color-brown: var(--brown-style);
   --color-white: var(--white-style);
-
-  --font-size-h1: 36px;
-  --font-size-h2: 30px;
-  --font-size-h3: 24px;
-  --font-size-h4: 20px;
-  --font-size-p: 16px;
   
+}
+
+@layer utilities {
+  .text-h1 {
+    font-size: var(--font-size-h1);
+  }
+  .text-h2 {
+    font-size: var(--font-size-h2);
+  }
+  .text-h3 {
+    font-size: var(--font-size-h3);
+  }
+  .text-h4 {
+    font-size: var(--font-size-h4);
+  }
+  .text-p {
+    font-size: var(--font-size-p);
+  }
+  .text-small {
+    font-size: var(--font-size-small);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
