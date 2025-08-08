@@ -25,5 +25,6 @@ urlpatterns = [
     path('', include('store.urls')),
     path('stores/', include('store.urls')),   # ← 店舗関連
     path('stamps/', include('stamps.urls')),  # ← これが必要！！
-
+    path('interview/', include('interview.urls')),
+    path('accounts/', include('accounts.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

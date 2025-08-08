@@ -11,9 +11,17 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# .envファイルから環境変数を読み込み
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Google Maps API設定
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 
 
 # Quick-start development settings - unsuitable for production
@@ -37,12 +45,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'stamps',
     'store',
     'rest_framework',
+    'corsheaders',
+    'interview',
+    'accounts',
 ]
 
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -126,3 +141,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# CORS設定ーーーーAPIの許可ーーーー
+# 開発中だけ許可（本番は限定してください）
+CORS_ALLOW_ALL_ORIGINS = True
+# 認証つきでCookieを使うなら:
+# CORS_ALLOW_CREDENTIALS = True

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>{{ topic.title }}</h1>
+<p>{{ topic.description }}</p>
+<small>作成日時: {{ topic.created_at|date:"Y年n月j日 H:i" }}</small>
+
+<hr>
+
+<h3>回答</h3>
+{% for reply in reply %}
+    <div>
+        <h1>{{ reply.store_reply.store_name }}</h1>
+        <p>{{ reply.reply }}</p>
+        {% if reply.image %}
+            {% for image in reply.image.all %}
+                <img src="{{ image.image.url }}" alt="Reply Image" style="max-width: 300px;">
+            {% endfor %}
+        {% endif %}
+        <small>投稿日時: {{ reply.created_at|date:"Y年n月j日 H:i" }}</small>
+    </div>
+    <hr>
+{% empty %}
+    <p>まだ回答はありません。</p>
+{% endfor %}
+
+<h3>回答を投稿する</h3>
+<form action="{% url 'topic_reply' topic_id=topic.id %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">投稿</button>
+</form>
+</body>
+</html>
