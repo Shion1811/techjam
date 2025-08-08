@@ -5,6 +5,13 @@ from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 
+# API用のルーター
+from rest_framework.routers import DefaultRouter
+from .views import ShopViewSet
+
+router = DefaultRouter()
+router.register(r'shops', ShopViewSet)
+
 urlpatterns = [
     path('stores/', views.stores, name='stores'),
     path('stores/register/', views.store_create, name='stores_create'),
@@ -12,4 +19,6 @@ urlpatterns = [
     path('stores/<int:store_id>/edit/', views.store_edit, name='store_edit'),
     path('stores/<int:store_id>/delete/', views.store_delete, name="store_delete"),
     
+    # API用のURLパターン
+    path('api/', include(router.urls)),
 ]
