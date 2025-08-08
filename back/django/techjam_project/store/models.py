@@ -1,36 +1,33 @@
 import os
 from django.db import models
 from pathlib import Path
-# Create your models here.
-# class Genre(models.TextChoices):
-#     JAPANESE = 'old', '和食'
-#     WESTERN = 'westen', '洋食'
-#     CHINESE = 'chine', '中華'
-#     SUSHI = 'sushi', '寿司'
-#     RAMEN = 'ramen', 'ラーメン'
-#     CURRY = 'curry', 'カレー'
-#     ITALIAN = 'italian', 'イタリアン'
-#     UDON = 'udon', 'うどん'
-#     SOBA = 'soba', 'そば'
-#     IZAKAYA = 'izakaya', '居酒屋'
-#     SET_MEAL = 'set', '定食'
-#     STEAK = 'steak', 'ステーキ'
-#     YAKINIKU = 'yakiniku', '焼肉'
+from accounts.models import CustomUser
 class Genre(models.Model):
-    # ジャンル名を保存するフィールド。重複しないようにunique=Trueを設定します。
+    # ジャンル名を保存するフィールド。重複しないようにunique=Trueを設定
     name = models.CharField(max_length=50, unique=True, verbose_name="ジャンル名")
 
     def __str__(self):
         return self.name
 
 class Store(models.Model):
+    owner = models.OneToOneField(
+        CustomUser, 
+        on_delete=models.CASCADE, 
+        related_name='store', 
+        null=True,
+        verbose_name="店舗オーナー",
+    )
     store_name = models.CharField(max_length=50, verbose_name="店舗名")
     address = models.CharField(max_length=200, verbose_name="店舗住所")
+    tell = models.CharField(max_length=15, default='000-0000-0000',verbose_name="電話番号")
     genres = models.ManyToManyField(Genre, verbose_name="ジャンル")
     open_time = models.TimeField(verbose_name="開店時間")
     close_time = models.TimeField(verbose_name="閉店時間")
     holiday = models.CharField(max_length=100, verbose_name="定休日", blank=True, null=True)
     payment = models.CharField(max_length=100, verbose_name="支払い方法")
+
+    def __str__(self):
+        return self.store_name
 
 class StoreImage(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='images')

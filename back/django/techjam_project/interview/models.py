@@ -20,6 +20,9 @@ class InterviewTopic(models.Model):
     description = models.TextField(verbose_name="インタビューの詳細")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
 
+    def __str__(self):
+        return self.title
+
 class InterviewReply(models.Model):
     topic = models.ForeignKey(InterviewTopic, on_delete=models.CASCADE, related_name="reply", verbose_name="お題")
     store_reply = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="store_reply", verbose_name="店舗情報")
