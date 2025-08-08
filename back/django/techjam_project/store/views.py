@@ -320,7 +320,7 @@ def search_nearby_shops(request):
 @api_view(['GET'])
 def get_shop_details(request, place_id):
     """
-    特定の店舗の詳細情報を取得
+    特定の店舗の詳細情報を取得（拡張版）
     """
     api_key = settings.GOOGLE_MAPS_API_KEY
     
@@ -332,7 +332,8 @@ def get_shop_details(request, place_id):
         details_url = f"https://maps.googleapis.com/maps/api/place/details/json"
         details_params = {
             'place_id': place_id,
-            'fields': 'name,formatted_address,formatted_phone_number,opening_hours,rating,website',
+            'fields': 'name,formatted_address,formatted_phone_number,opening_hours,rating,website,photos,types,price_level,reviews',
+            'language': 'ja',
             'key': api_key
         }
         
@@ -346,20 +347,81 @@ def get_shop_details(request, place_id):
         
         # 営業時間を整形
         business_hours = '営業時間情報なし'
-        if 'opening_hours' in place:
-            hours = place['opening_hours']
-            if hours.get('open_now', False):
-                business_hours = '営業中'
-            else:
-                business_hours = '営業時間外'
+        regular_holiday = '定休日情報なし'
+        if 'opening_hours' in place and 'weekday_text' in place['opening_hours']:
+            weekday_text = place['opening_hours']['weekday_text']
+            business_hours = ' | '.join(weekday_text)
+            
+            # 定休日を特定（営業時間が記載されていない曜日）
+            all_days = ['月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日', '日曜日']
+            open_days = []
+            for day_text in weekday_text:
+                for day in all_days:
+                    if day in day_text:
+                        open_days.append(day)
+                        break
+            
+            closed_days = [day for day in all_days if day not in open_days]
+            if closed_days:
+                regular_holiday = ', '.join(closed_days)
+        
+        # ジャンルを特定
+        genre = 'ジャンル情報なし'
+        types = place.get('types', [])
+        if types:
+            # Google Mapsのtypesからジャンルを判定
+            genre_mapping = {
+                'restaurant': 'レストラン',
+                'cafe': 'カフェ',
+                'bar': 'バー',
+                'bakery': 'ベーカリー',
+                'food': '飲食店',
+                'meal_takeaway': 'テイクアウト',
+                'meal_delivery': 'デリバリー'
+            }
+            
+            for type_name in types:
+                if type_name in genre_mapping:
+                    genre = genre_mapping[type_name]
+                    break
+        
+        # 決済手段を推定（Google Maps APIでは直接取得できないため推定）
+        payment_methods = ['現金', 'クレジットカード']
+        if place.get('price_level') is not None:
+            # 価格レベルが高い場合はクレジットカード対応の可能性が高い
+            if place['price_level'] >= 2:
+                payment_methods.append('電子マネー')
+        
+        # 画像情報を取得
+        images = []
+        if 'photos' in place:
+            for photo in place['photos'][:5]:  # 最大5枚まで
+                photo_reference = photo.get('photo_reference', '')
+                if photo_reference:
+                    # サムネイル画像URL
+                    thumbnail_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&photoreference={photo_reference}&language=ja&key={api_key}"
+                    # 高解像度画像URL
+                    full_image_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference={photo_reference}&language=ja&key={api_key}"
+                    
+                    images.append({
+                        'thumbnail': thumbnail_url,
+                        'full_image': full_image_url,
+                        'width': photo.get('width', 0),
+                        'height': photo.get('height', 0)
+                    })
         
         shop_details = {
             'name': place.get('name', ''),
             'address': place.get('formatted_address', ''),
             'phone': place.get('formatted_phone_number', '電話番号なし'),
             'business_hours': business_hours,
+            'regular_holiday': regular_holiday,
+            'genre': genre,
+            'payment_methods': payment_methods,
             'rating': place.get('rating', 0),
             'website': place.get('website', ''),
+            'images': images,
+            'price_level': place.get('price_level', 0),
             'opening_hours': place.get('opening_hours', {})
         }
         
