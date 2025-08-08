@@ -1,45 +1,54 @@
-from django.shortcuts import render, redirect ,get_object_or_404
-
-# Create your views here.
-from django.views.generic import ListView
-from .models import InterviewTopic
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
+from .models import InterviewTopic, InterviewReply, InterviewReplyImage
+from .serializers import InterviewTopicSerializer, InterviewReplySerializer, InterviewReplyImageSerializer
 from store.models import Store
-from .forms import InterviewReplyForm
 
-class InterviewTopicListView(ListView):
-    # このビューが使用するモデル
-    model = InterviewTopic
-    # 表示するテンプレートの名前
-    template_name = 'topic_list.html'
-    # テンプレート内で使用するオブジェクトのリストの名前
-    context_object_name = 'topics'
+class InterviewTopicViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    インタビューのお題を扱うAPI
+    一覧表示と詳細表示のみを許可
+    """
+    queryset = InterviewTopic.objects.all().order_by('-created_at')
+    serializer_class = InterviewTopicSerializer
 
-def topic_reply(request, topic_id):
-    topic = get_object_or_404(InterviewTopic, id=topic_id)
+class InterviewReplyViewSet(viewsets.ModelViewSet):
+    """
+    インタビューの回答を扱うAPI
+    """
+    queryset = InterviewReply.objects.all().order_by('-created_at')
+    serializer_class = InterviewReplySerializer
     
-    if request.method == 'POST':
-        store_reply_form = InterviewReplyForm(request.POST, request.FILES)
-        if store_reply_form.is_valid():
-            reply_instance = store_reply_form.save(commit=False)
-            reply_instance.topic = topic
-            reply_instance.store_reply = request.store_name # Storeモデルのインスタンスを代入
-            reply_instance.save()
-            return redirect('topic_detail.html', topic_id=topic.id)
-    
-    # GETリクエストの場合、またはフォームが無効な場合
-    return redirect('topic_detail.html', topic_id=topic.id) # 常にトピック詳細ページにリダイレクト
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-def topic_detail(request, topic_id):
-    topic = get_object_or_404(InterviewTopic, id=topic_id)
-    reply = topic.reply.all().order_by('-created_at') # 関連する回答を全て取得
+        store_id = request.data.get('store_reply')
+        topic_id = request.data.get('topic')
+        reply_images_data = request.FILES.getlist('images')
 
-    # フォームのインスタンスを作成
-    form = InterviewReplyForm()
+        store = get_object_or_404(Store, id=store_id)
+        topic = get_object_or_404(InterviewTopic, id=topic_id)
+        
+        # 回答インスタンスを保存
+        reply_instance = InterviewReply.objects.create(
+            store_reply=store,
+            topic=topic,
+            reply=request.data.get('reply')
+        )
+        
+        # 画像を保存
+        for image_data in reply_images_data:
+            InterviewReplyImage.objects.create(reply=reply_instance, image=image_data)
+        
+        # 保存したインスタンスをシリアライズして返す
+        return Response(InterviewReplySerializer(reply_instance).data, status=status.HTTP_201_CREATED)
 
-    context = {
-        'topic': topic,
-        'reply': reply,
-        'form': form,
-    }
-    return render(request, 'topic_detail.html', context)
-    
+class InterviewReplyImageViewSet(viewsets.ModelViewSet):
+    """
+    インタビュー回答に画像をアップロード・削除するAPI
+    """
+    queryset = InterviewReplyImage.objects.all()
+    serializer_class = InterviewReplyImageSerializer
