@@ -48,8 +48,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'store',
-    'interview'
+    'interview',
+    'accounts',
 ]
+
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
