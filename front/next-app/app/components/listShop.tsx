@@ -2,45 +2,17 @@
 
 import { useState, useEffect } from 'react';
 
-// ===== 変更前のprops型定義（コメントアウト） =====
-// type ListShopProps = {
-//     shopName: string;
-//     address : string;
-//     businessHours : string;
-//     tel : string;
-//     url : string; //ここに店舗詳細のurlを入れる
-//     image : string;
-// }
-
 // ===== 新しいAPI用の型定義 =====
 // APIから取得する店舗データの型を定義
 type Shop = {
     id: number;        // 店舗のID（データベースの主キー）
     name: string;      // 店舗名
     address: string;   // 店舗の住所
+    business_hours: string; // 営業時間
+    phone: string;     // 電話番号
 }
 
-// ===== 変更前のコンポーネント（コメントアウト） =====
-// export default function ListShop({ shopName, address, businessHours, tel, url, image }: ListShopProps) {
-//     const handleClick = () => {
-//         window.open(url, 'url');
-//     }
-//     return (
-//         <div className="flex w-95 h-39 bg-white rounded-lg shadow-md  justify-center items-center gap-4 cursor-pointer" onClick={handleClick}>
-//             <div className="w-30 h-35 ">
-//                 <img src={image} alt="thumbnailImage" className="w-full h-full object-cover" />
-//             </div>
-//             <div className="flex flex-col">
-//                 <div className="text-sm font-bold">{shopName}</div>
-//                 <div className="text-sm text-black">{address}</div>
-//                 <div className="text-sm text-black">{businessHours}</div>
-//                 <div className="text-sm text-black">{tel}</div>
-//             </div>
-//         </div>
-//     )
-// }
-
-// ===== 新しいAPI連携コンポーネント =====
+// ===== 登録済み店舗表示コンポーネント =====
 export default function ListShop() {
     // ===== React Hooks（状態管理） =====
     // shops: APIから取得した店舗データを保存する配列
@@ -97,53 +69,59 @@ export default function ListShop() {
         );
     }
 
-    // ===== エラーが発生した場合の表示 =====
-    if (error) {
-        return (
-            <div className="flex justify-center items-center h-64">
-                <div className="text-red-500">エラー: {error}</div>
-            </div>
-        );
-    }
-
-    // ===== 店舗データが空の場合の表示 =====
-    if (shops.length === 0) {
-        return (
-            <div className="flex justify-center items-center h-64">
-                <div className="text-gray-500">店舗が登録されていません</div>
-            </div>
-        );
-    }
-
-    // ===== 店舗一覧の表示 =====
+    // ===== メインコンテンツ =====
     return (
-        <div className="space-y-4">
-            {/* map関数でshops配列の各要素を店舗カードに変換 */}
-            {shops.map((shop) => (
-                <div 
-                    key={shop.id} // Reactのkey属性（各要素を識別するため）
-                    className="flex w-95 h-39 bg-white rounded-lg shadow-md justify-center items-center gap-4 cursor-pointer hover:shadow-lg transition-shadow"
-                    onClick={() => handleShopClick(shop)} // クリック時に店舗データを渡す
-                >
-                    {/* 画像エリア（現在はプレースホルダー） */}
-                    <div className="w-30 h-35 bg-gray-200 rounded">
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            画像なし
-                        </div>
-                    </div>
-                    
-                    {/* 店舗情報エリア */}
-                    <div className="flex flex-col">
-                        {/* APIから取得した店舗名を表示 */}
-                        <div className="text-sm font-bold">{shop.name}</div>
-                        {/* APIから取得した住所を表示 */}
-                        <div className="text-sm text-black">{shop.address}</div>
-                        {/* 現在は未実装の項目 */}
-                        <div className="text-sm text-gray-500">営業時間: 未設定</div>
-                        <div className="text-sm text-gray-500">電話: 未設定</div>
+        <div className="space-y-6">
+            {/* ===== ページタイトル ===== */}
+            <div className="text-center">
+                <h1 className="text-2xl font-bold text-gray-800 mb-2">登録済み店舗一覧</h1>
+                <p className="text-gray-600">データベースに登録されている店舗を表示します</p>
+            </div>
+
+            {/* ===== エラー表示 ===== */}
+            {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    {error}
+                </div>
+            )}
+
+            {/* ===== 登録済み店舗データ ===== */}
+            {shops.length > 0 && (
+                <div>
+                    <h2 className="text-lg font-bold mb-4">店舗一覧 ({shops.length}件)</h2>
+                    <div className="space-y-4">
+                        {shops.map((shop) => (
+                            <div 
+                                key={shop.id}
+                                className="flex w-95 h-39 bg-white rounded-lg shadow-md justify-center items-center gap-4 cursor-pointer hover:shadow-lg transition-shadow"
+                                onClick={() => handleShopClick(shop)}
+                            >
+                                <div className="w-30 h-35 bg-gray-200 rounded">
+                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                        画像なし
+                                    </div>
+                                </div>
+                                <div className="flex flex-col">
+                                    <div className="text-sm font-bold">{shop.name}</div>
+                                    <div className="text-sm text-black">{shop.address}</div>
+                                    <div className="text-sm text-black">{shop.business_hours}</div>
+                                    <div className="text-sm text-black">{shop.phone}</div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
-            ))}
+            )}
+
+            {/* ===== データが空の場合 ===== */}
+            {shops.length === 0 && (
+                <div className="flex justify-center items-center h-64">
+                    <div className="text-gray-500 text-center">
+                        <div className="text-2xl mb-2">🏪</div>
+                        <div>登録済みの店舗がありません</div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
