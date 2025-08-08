@@ -45,3 +45,10 @@ class StoreImage(models.Model):
             # ファイルパスが存在し、かつファイルが実際に存在する場合にのみ削除
             if os.path.exists(image_path):
                 os.remove(image_path)
+
+
+
+# ----------APIのモデル----------------
+class Shop(models.Model):
+    name = models.CharField(max_length=100)
+    address = models.CharField(max_length=255, blank=True)
