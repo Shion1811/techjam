@@ -9,16 +9,14 @@ from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from .views import ShopViewSet
 
+from .views import StoreViewSet, StoreImageViewSet
+
 router = DefaultRouter()
+router.register(r'stores', StoreViewSet, basename='store')
+router.register(r'images', StoreImageViewSet, basename='image')
 router.register(r'shops', ShopViewSet)
 
 urlpatterns = [
-    path('stores/', views.stores, name='stores'),
-    path('stores/register/', views.store_create, name='stores_create'),
-    path('stores/<int:store_id>/', views.store_detail, name='store_detail'),
-    path('stores/<int:store_id>/edit/', views.store_edit, name='store_edit'),
-    path('stores/<int:store_id>/delete/', views.store_delete, name="store_delete"),
-    
     # API用のURLパターン
     path('api/', include(router.urls)),
     

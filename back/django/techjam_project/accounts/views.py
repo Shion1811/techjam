@@ -1,28 +1,33 @@
-from django.shortcuts import render, redirect
-from .forms import CustomUserCreationForm, OwnerCreationForm
+from rest_framework import generics, permissions, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import SignUpCustomerSerializer, SignUpOwnerSerializer, UserSerializer
 from .models import CustomUser
 
-def signup_customer(request):
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            # ユーザー登録後の処理
-            return redirect('login') # ログインページにリダイレクト
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'signup_customer.html', {'form': form})
+class SignUpCustomerAPIView(generics.CreateAPIView):
+    """
+    一般ユーザー登録用のAPIエンドポイント
+    """
+    queryset = CustomUser.objects.all()
+    serializer_class = SignUpCustomerSerializer
+    permission_classes = [permissions.AllowAny]
 
-def signup_owner(request):
-    if request.method == 'POST':
-        form = OwnerCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            # 経営者フラグを立ててユーザーを保存
-            user.is_owner = True
-            user.save()
-            # 店舗情報登録ページにリダイレクトなど
-            return redirect('store_register')
-    else:
-        form = OwnerCreationForm()
-    return render(request, 'signup_owner.html', {'form': form})
+class SignUpOwnerAPIView(generics.CreateAPIView):
+    """
+    経営者ユーザー登録用のAPIエンドポイント
+    """
+    queryset = CustomUser.objects.all()
+    serializer_class = SignUpOwnerSerializer
+    permission_classes = [permissions.AllowAny]
+
+class UserDetailAPIView(generics.RetrieveAPIView):
+    """
+    ユーザー情報を取得するためのAPI
+    """
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        # ログイン中のユーザー情報を取得
+        return self.request.user

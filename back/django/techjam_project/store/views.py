@@ -8,72 +8,49 @@ from datetime import datetime, time
 # Google Maps API用のビュー
 import requests
 from django.conf import settings
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets, permissions, status
 
 # API用のViewSet
-from rest_framework import viewsets
 from .models import Shop
 from .serializers import ShopSerializer
 
-# 店舗一覧
-def stores(request):
-    stores = Store.objects.all()
-    images = StoreImage.objects.all()
-    return render(request, 'stores.html', {'stores': stores})
+from .serializers import StoreSerializer, StoreImageSerializer
 
-# 店舗登録
-def store_create(request):
-    if request.method == 'POST':
-        form = StoreForm(request.POST, request.FILES)
-        image_formset = StoreImageFormSet(request.POST, request.FILES, instance=form.instance)
-        if form.is_valid() and image_formset.is_valid():
-            store = form.save()
-            images = image_formset.save(commit=False)
-            for image in images:
-                image.store = store
-                image.save()
-            return redirect('stores')
-    else:
-        form = StoreForm()
-        image_formset = StoreImageFormSet()
+class StoreViewSet(viewsets.ModelViewSet):
+    queryset = Store.objects.all()
+    serializer_class = StoreSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        # 店舗作成時にownerをリクエストユーザーに設定
+        serializer.save(owner=self.request.user)
+
+    @action(detail=True, methods=['get'])
+    def images(self, request, pk=None):
+        # 特定の店舗に紐づく画像をすべて取得
+        store = self.get_object()
+        images = store.images.all()
+        serializer = StoreImageSerializer(images, many=True)
+        return Response(serializer.data)
     
-    return render(request, 'store_register.html', {'form': form, 'image_formset': image_formset})
+class StoreImageViewSet(viewsets.ModelViewSet):
+    queryset = StoreImage.objects.all()
+    serializer_class = StoreImageSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-# 店舗詳細
-def store_detail(request, store_id):
-    store = get_object_or_404(Store, id=store_id)
-    images = store.images.all()
-    return render(request, 'store_detail.html', {'store': store, 'images': images})
-
-# 店舗情報の編集
-def store_edit(request, store_id):
-    store = get_object_or_404(Store, id=store_id)
-    if request.method == 'POST':
-        form = StoreForm(request.POST, request.FILES, instance=store)
-        image_formset = StoreImageFormSet(request.POST, request.FILES, instance=store)
-        if form.is_valid() and image_formset.is_valid():
-            store = form.save()
-            images = image_formset.save(commit=False)
-            for image in images:
-                image.store = store
-                image.save()
-            return redirect('store_detail', store_id=store.id)
-    else:
-        form = StoreForm(instance=store)
-        image_formset = StoreImageFormSet(instance=store)
-
-    return render(request, 'store_edit.html', {'form': form, 'image_formset': image_formset, 'store': store})
-
-# 店舗情報の削除
-def store_delete(request, store_id):
-    store = get_object_or_404(Store, id=store_id)
-    if request.method == 'POST':
-        store.delete()
-        return redirect('stores')
-    
-    return render(request, 'store_delete.html', {'store': store})
+    def create(self, request, *args, **kwargs):
+        # 画像アップロード時の処理をカスタマイズ
+        store_id = request.data.get('store')
+        store = get_object_or_404(Store, id=store_id)
+        
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(store=store)
+        
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 class ShopViewSet(viewsets.ModelViewSet):
     queryset = Shop.objects.all()

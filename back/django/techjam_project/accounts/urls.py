@@ -1,11 +1,11 @@
-from django.urls import path, include
-from . import views
-from django.contrib.auth import views as auth_views
-
-from django.conf import settings
-from django.conf.urls.static import static
+from django.urls import path
+from .views import SignUpCustomerAPIView, SignUpOwnerAPIView, UserDetailAPIView
 
 urlpatterns = [
-    path('signup/customer/', views.signup_customer, name='signup_customer'),
-    path('signup/owner/', views.signup_owner, name='signup_owner'),
+    # 一般ユーザー登録
+    path('api/signup/customer/', SignUpCustomerAPIView.as_view(), name='api_signup_customer'),
+    # 経営者ユーザー登録
+    path('api/signup/owner/', SignUpOwnerAPIView.as_view(), name='api_signup_owner'),
+    # ログイン中のユーザー情報取得
+    path('api/me/', UserDetailAPIView.as_view(), name='api_user_detail'),
 ]
