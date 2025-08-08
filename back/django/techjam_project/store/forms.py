@@ -1,6 +1,6 @@
 from django.forms import inlineformset_factory
 from django import forms
-from .models import Store, StoreImage
+from .models import Store, StoreImage, Shop
 
 class StoreForm(forms.ModelForm):
     class Meta:
@@ -16,3 +16,8 @@ StoreImageFormSet = inlineformset_factory(
     Store, StoreImage, form=StoreImageForm,
     fields=['image']
 )
+
+class ShopForm(forms.ModelForm):
+    class Meta:
+        model = Shop
+        fields = '__all__'

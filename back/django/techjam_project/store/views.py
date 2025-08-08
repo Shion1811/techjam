@@ -4,6 +4,19 @@ from django.shortcuts import render, redirect ,get_object_or_404
 
 from .models import Store, StoreImage
 from .forms import StoreForm, StoreImageForm, StoreImageFormSet
+from datetime import datetime, time
+# Google Maps API用のビュー
+import requests
+from django.conf import settings
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
+# API用のViewSet
+from rest_framework import viewsets
+from .models import Shop
+from .serializers import ShopSerializer
+
 # 店舗一覧
 def stores(request):
     stores = Store.objects.all()
@@ -62,21 +75,9 @@ def store_delete(request, store_id):
     
     return render(request, 'store_delete.html', {'store': store})
 
-# API用のViewSet
-from rest_framework import viewsets
-from .models import Shop
-from .serializers import ShopSerializer
-
 class ShopViewSet(viewsets.ModelViewSet):
     queryset = Shop.objects.all()
     serializer_class = ShopSerializer
-
-# Google Maps API用のビュー
-import requests
-from django.conf import settings
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
 
 @api_view(['GET'])
 def search_nearby_shops(request):
